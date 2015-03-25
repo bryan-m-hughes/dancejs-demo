@@ -1,31 +1,60 @@
-/*R.ready(function() {
+R.ready(function() {
   if (R.authenticated()) {
-    start();
+    render();
   } else {
     R.authenticate(function() {
-      start();
+      render();
     });
   }
-});*/
+});
 
-function start() {
+var searchResults = [];
+var selectedItem;
+var isStopped = true;
+var isPlaying = false;
+
+function onSearchClicked() {
+  R.request({
+    method: 'search',
+    content: {
+      query: document.getElementById('search_input').value,
+      types: 'Track'
+    },
+    success: function(response) {
+      searchResults = response.result.results;
+      render();
+    }
+  });
+}
+
+function onItemClicked(track) {
+  isStopped = true;
+  isPlaying = false;
+  R.player.pause();
+  selectedItem = track;
+  render();
+}
+
+function onPlayClicked(track) {
+  if (isStopped) {
+    isStopped = false;
+    isPlaying = true;
+    R.player.play({
+      source: track.key
+    });
+  } else {
+    isPlaying = !isPlaying;
+    R.player.togglePause();
+  }
+  render();
+}
+
+function render() {
   React.render(
     <App />,
     document.getElementById('app')
   );
 }
-
-var searchResults = [{
-  artist: 'Weezer',
-  album: 'Weezer',
-  title: 'Buddy Holly',
-  duration: '3:15'
-}, {
-  artist: 'Weezer',
-  album: 'Weezer',
-  title: 'Say it Ain\'t So',
-  duration: '3:20'
-}];
 
 var App = React.createClass({
   render: function() {
@@ -43,7 +72,7 @@ var Search = React.createClass({
     return (
       <div className="search_container">
         <div className="form-group"><input id="search_input" className="form-control"></input></div>
-        <button className="btn btn-primary">Search</button>
+        <button className="btn btn-primary" onClick={onSearchClicked}>Search</button>
         <SearchResults searchResults={searchResults} />
       </div>
     );
@@ -54,14 +83,10 @@ var SearchResults = React.createClass({
   render: function() {
     var nodes = this.props.searchResults.map(function(result) {
       return (
-        <div className="search_result_item">
-          <img src={result.icon} className="search_result_icon" />
-          <div className="search_result_info">
-            <div className="search_result_title">{result.title}</div>
-            <div className="search_result_subinfo">{result.artist} - {result.album}</div>
-          </div>
-          <div className="search_result_duration">{result.duration}</div>
-        </div>
+        <SearchResultItem
+          track={result}
+          key={result.key}
+          />
       );
     });
     return (
@@ -72,13 +97,47 @@ var SearchResults = React.createClass({
   }
 });
 
-var Play = React.createClass({
+var SearchResultItem = React.createClass({
+  onClicked: function() {
+    onItemClicked(this.props.track);
+  },
   render: function() {
+    var track = this.props.track;
     return (
-      <div className="play_container">
+      <div className="search_result_item" onClick={this.onClicked}>
+        <img src={track.icon} className="search_result_icon" />
+        <div className="search_result_info">
+          <div className="search_result_title">{track.name}</div>
+          <div className="subinfo">{track.artist + '-' + track.album}</div>
+        </div>
+        <div className="search_result_duration">
+          {Math.floor(track.duration / 60) + ':' + ('0' + track.duration % 60).substr(-2)}
+        </div>
       </div>
     );
   }
 });
 
-start();
+var Play = React.createClass({
+  render: function() {
+    return selectedItem ? <PlayInfo track={selectedItem} /> : <div></div>;
+  }
+});
+
+var PlayInfo = React.createClass({
+  onClicked: function() {
+    onPlayClicked(this.props.track);
+  },
+  render: function() {
+    var track = this.props.track;
+    return (
+      <div className="play_container">
+        <img src={track.icon} className="play_info_icon" />
+        <div>{track.name}</div>
+        <div className="subinfo">{track.artist}</div>
+        <div className="subinfo">{track.album}</div>
+        <button className="btn btn-primary" onClick={this.onClicked}>{isPlaying ? 'Pause' : 'Play'}</button>
+      </div>
+    );
+  }
+});
