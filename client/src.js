@@ -25,8 +25,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 var searchResults = [];
 var selectedItem;
-var isStopped = true;
-var isPlaying = false;
+var state = 'stopped';
 
 R.ready(function() {
   if (R.authenticated()) {
@@ -56,22 +55,20 @@ function onSearchClicked() {
 }
 
 function onItemClicked(track) {
-  isStopped = true;
-  isPlaying = false;
   R.player.pause();
+  state = 'stopped';
   selectedItem = track;
   render();
 }
 
 function onPlayClicked(track) {
-  if (isStopped) {
-    isStopped = false;
-    isPlaying = true;
+  if (state == 'stopped') {
+    state = 'playing'
     R.player.play({
       source: track.key
     });
   } else {
-    isPlaying = !isPlaying;
+    state = state == 'playing' ? 'paused' : 'playing';
     R.player.togglePause();
   }
   render();
@@ -166,7 +163,7 @@ var PlayInfo = React.createClass({
         <div>{track.name}</div>
         <div className="subinfo">{track.artist}</div>
         <div className="subinfo">{track.album}</div>
-        <button className="btn btn-primary" onClick={this.onClicked}>{isPlaying ? 'Pause' : 'Play'}</button>
+        <button className="btn btn-primary" onClick={this.onClicked}>{state == 'playing' ? 'Pause' : 'Play'}</button>
       </div>
     );
   }
