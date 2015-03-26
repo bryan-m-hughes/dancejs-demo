@@ -41,6 +41,16 @@ OTHER DEALINGS IN THE SOFTWARE.
 }
 
 .search_controls {
+  display: flex;
+  flex-direction: row;
+}
+
+.search_controls > button {
+  margin-left: 5px;
+  min-width: 75px;
+}
+
+.search_controls {
   width: 100%;
 }
 
@@ -80,7 +90,11 @@ OTHER DEALINGS IN THE SOFTWARE.
   width: 60%
 }
 
+.play_container > button {
+  width: 100px;
+}
+
 .play_info_icon {
-  width: 200px;
-  height: 200px;
+  width: 400px;
+  height: 400px;
 }

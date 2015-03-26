@@ -46,7 +46,10 @@ function onSearchClicked() {
       types: 'Track'
     },
     success: function(response) {
-      searchResults = response.result.results;
+      if (response.result.results) {
+        searchResults = response.result.results;
+        selectedItem = undefined;
+      }
       render();
     }
   });
@@ -96,8 +99,10 @@ var Search = React.createClass({
   render: function() {
     return (
       <div className="search_container">
-        <div className="form-group"><input id="search_input" className="form-control"></input></div>
-        <button className="btn btn-primary" onClick={onSearchClicked}>Search</button>
+        <div className="search_controls">
+          <input id="search_input" className="form-control"></input>
+          <button className="btn btn-primary" onClick={onSearchClicked}>Search</button>
+        </div>
         <SearchResults searchResults={searchResults} />
       </div>
     );
@@ -157,7 +162,7 @@ var PlayInfo = React.createClass({
     var track = this.props.track;
     return (
       <div className="play_container">
-        <img src={track.icon} className="play_info_icon" />
+        <img src={track.icon400} className="play_info_icon" />
         <div>{track.name}</div>
         <div className="subinfo">{track.artist}</div>
         <div className="subinfo">{track.album}</div>
