@@ -41,13 +41,12 @@ function onSearchClicked() {
   R.request({
     method: 'search',
     content: {
-      query: document.getElementById('search_input').value,
-      types: 'Track'
+      types: 'Track',
+      query: document.getElementById('search_input').value
     },
     success: function(response) {
       if (response.result.results) {
         searchResults = response.result.results;
-        selectedItem = undefined;
       }
       render();
     }
@@ -63,7 +62,7 @@ function onItemClicked(track) {
 
 function onPlayClicked(track) {
   if (state == 'stopped') {
-    state = 'playing'
+    state = 'playing';
     R.player.play({
       source: track.key
     });
